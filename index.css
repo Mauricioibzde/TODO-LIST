@@ -1,0 +1,227 @@
+    /* Base styles */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #6c757d;
+        font-weight: 700;
+        height: 100dvh;
+      }
+
+      select {
+        font-weight: 700;
+        & option {
+          font-weight: 700;
+        }
+      }
+
+      button {
+       
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        font-weight: 700;
+        & img {
+          width: 1rem;
+          height: 1rem;
+        }
+      }
+
+      #filter {
+        padding: .5rem;
+      }
+
+      #task-date {
+        font-weight: 700;
+      }
+
+      input , textarea  {
+        font-weight: 600;
+        text-align: center;
+      }
+
+      span {
+        font-weight: 700;
+      }
+  
+      h1 {
+        text-align: center;
+        color: #ffffff;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+      }
+  
+      /* Controls styles */
+      #controls, #task-form, #filter {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+  
+      #task-form input, #task-form textarea, #task-form button, #filter select, #controls button {
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: 0.3s;
+      }
+  
+      #task-form input:focus, #task-form textarea:focus, #filter select:focus {
+        outline: none;
+        border-color: #007BFF;
+      }
+  
+      #task-form button, #controls button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+  
+      #task-form button:hover, #controls button:hover {
+        background-color: #0056b3;
+      }
+  
+      /* List styles */
+      ul {
+        list-style: none;
+        padding: 0;
+       width: 100%;
+        margin: 0 auto;
+        font-weight: 700;
+      }
+  
+      li {
+        background: white;
+        margin-bottom: 15px;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s;
+      }
+  
+      li:hover {
+        transform: translateY(-3px);
+      }
+  
+      li.on-time {
+        border-left: 10px solid #28a745;
+      }
+  
+      li.due-soon {
+        border-left: 10px solid #ffc107;
+      }
+  
+      li.overdue {
+        border-left: 10px solid #dc3545;
+      }
+  
+      li.completed {
+        border-left: 10px solid #6c757d;
+        text-decoration: line-through;
+        opacity: 0.7;
+      }
+  
+      /* Buttons for delete, restore and edit */
+      .delete-btn, .restore-btn, .edit-btn {
+       width: 8rem;
+       height: 2.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+      
+      }
+  
+      .delete-btn {
+        background-color: #dc3545;
+     
+      }
+  
+      .delete-btn:hover {
+        background-color: #a71d2a;
+      }
+  
+      .restore-btn {
+        background-color: #28a745;
+      
+      }
+  
+      .restore-btn:hover {
+        background-color: #1e7e34;
+      }
+  
+      .edit-btn {
+        background-color: #ffc107;
+      
+      }
+  
+      .edit-btn:hover {
+        background-color: #e0a800;
+      }
+  
+      /* Styled checkbox */
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #007BFF;
+        cursor: pointer;
+      }
+  
+      /* Responsividade */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+  
+        h1 {
+          font-size: 24px;
+        }
+  
+        #task-form input, #task-form textarea, #task-form button, #filter select {
+          font-size: 14px;
+          width: 100%;
+        }
+  
+        li {
+          padding: 15px;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+  
+        li span {
+          margin-bottom: 5px;
+        }
+  
+        .delete-btn, .restore-btn, .edit-btn {
+          margin-top: 10px;
+        }
+      }
+  
+      @media (max-width: 480px) {
+        #task-form input, #task-form textarea, #task-form button {
+          padding: 8px;
+          font-size: 12px;
+        }
+  
+        #controls button, #filter select {
+          font-size: 14px;
+          padding: 8px 12px;
+        }
+  
+        li {
+          padding: 10px;
+        }
+      }

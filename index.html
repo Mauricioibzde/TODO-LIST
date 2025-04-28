@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task List</title>
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <h1>My Task List</h1>
+
+  <div id="controls">
+    <button id="toggle-tasks" onclick="toggleView('tasks')">View Tasks</button>
+    <button id="toggle-trash" onclick="toggleView('trash')">View Trash</button>
+  </div>
+
+  <form id="task-form" onsubmit="addTask(event)">
+    <input type="text" id="task-title" placeholder="Task Title" required> </input>
+    <input type="text" id="task-description" placeholder="Task Description" required></input>
+    <input type="date" id="task-date" required>
+    <button type="submit"> <img src="./icon/plus_hires.png" alt="">Add Tasks</button>
+  </form>
+
+  <select id="filter" onchange="filterTasks()">
+    <option value="all">All</option>
+    <option value="on-time">On Time</option>
+    <option value="due-soon">Due Soon</option>
+    <option value="overdue">Overdue</option>
+    <option value="completed">Completed</option>
+  </select>
+
+  <ul id="task-list"></ul>
+
+  <script src="script.js">
+    
+  </script>
+</body>
+</html>
