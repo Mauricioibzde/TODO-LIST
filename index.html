@@ -8,29 +8,31 @@
 </head>
 <body>
 
-  <h1>My Task List</h1>
+  <h1>TO-DO LISTE</h1>
 
   <div id="controls">
-    <button id="toggle-tasks" onclick="toggleView('tasks')">View Tasks</button>
-    <button id="toggle-trash" onclick="toggleView('trash')">View Trash</button>
+    <button id="toggle-tasks" onclick="toggleView('tasks')">Aufgabe anzeigen</button>
+    <button id="toggle-trash" onclick="toggleView('trash')">Papierkorb anzeigen</button>
   </div>
 
   <form id="task-form" onsubmit="addTask(event)">
-    <input type="text" id="task-title" placeholder="Task Title" required> </input>
-    <input type="text" id="task-description" placeholder="Task Description" required></input>
+    <input type="text" id="task-title" placeholder="Aufgabentitel" required> </input>
+    <input type="text" id="task-description" placeholder="Beschreibung" required></input>
     <input type="date" id="task-date" required>
-    <button type="submit"> <img src="./icon/plus_hires.png" alt="">Add Tasks</button>
+    <button type="submit"> <img src="./icon/plus_hires.png" alt="">Aufgabe hinzufügen</button>
   </form>
 
   <select id="filter" onchange="filterTasks()">
-    <option value="all">All</option>
-    <option value="on-time">On Time</option>
-    <option value="due-soon">Due Soon</option>
-    <option value="overdue">Overdue</option>
-    <option value="completed">Completed</option>
+    <option value="all">Alle</option>
+    <option value="on-time">Offen</option>
+    <option value="due-soon">Bald fällig</option>
+    <option value="overdue">Überfällig</option>
+    <option value="completed">Erledigt</option>
   </select>
 
-  <ul id="task-list"></ul>
+  <ul id="task-list">
+
+  </ul>
 
   <script src="script.js">
     
