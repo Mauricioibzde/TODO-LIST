@@ -1,32 +1,32 @@
-// Inicializa as listas de tarefas e lixeira a partir do localStorage ou cria arrays vazios
+// Initialisiert die Aufgaben- und Papierkorb-Listen aus dem localStorage oder erstellt leere Arrays
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let trash = JSON.parse(localStorage.getItem('trash')) || [];
-let filter = 'all'; // Filtro atual para exibir tarefas
-let currentView = 'tasks';  // Define se estamos vendo tarefas ou lixeira
-let editingTaskId = null; // ID da tarefa que está sendo editada (null se nenhuma)
+let filter = 'all'; // Aktueller Filter zur Anzeige von Aufgaben
+let currentView = 'tasks';  // Zeigt an, ob Aufgaben oder Papierkorb angezeigt werden
+let editingTaskId = null; // ID der Aufgabe, die gerade bearbeitet wird (null, wenn keine)
 
-// Salva a lista de tarefas no localStorage
+// Speichert die Aufgabenliste im localStorage
 function saveTasks() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Salva a lista da lixeira no localStorage
+// Speichert die Papierkorb-Liste im localStorage
 function saveTrash() {
   localStorage.setItem('trash', JSON.stringify(trash));
 }
 
-// Adiciona uma nova tarefa ou atualiza uma existente
+// Fügt eine neue Aufgabe hinzu oder aktualisiert eine bestehende
 function addTask(event) {
-  event.preventDefault(); // Evita que a página recarregue
+  event.preventDefault(); // Verhindert das Neuladen der Seite
 
-  // Pega os valores dos inputs
+  // Holt die Werte aus den Eingabefeldern
   const taskTitle = document.getElementById('task-title');
   const taskDescription = document.getElementById('task-description');
   const taskDate = document.getElementById('task-date');
 
-  // Cria um objeto de nova tarefa
+  // Erstellt ein neues Aufgabenobjekt
   const newTask = {
-    id: editingTaskId || Date.now(), // Usa o ID antigo se for edição, senão gera novo
+    id: editingTaskId || Date.now(), // Verwendet die alte ID, wenn Bearbeitung; sonst neue ID
     title: taskTitle.value.trim(),
     description: taskDescription.value.trim(),
     date: taskDate.value,
@@ -34,75 +34,81 @@ function addTask(event) {
     status: 'on-time'
   };
 
-  // Se estivermos editando, atualiza a tarefa
+  // Wenn wir eine Aufgabe bearbeiten, wird sie aktualisiert
   if (editingTaskId) {
     const index = tasks.findIndex(t => t.id === editingTaskId);
     if (index !== -1) {
       tasks[index] = newTask;
     }
-    editingTaskId = null; // Reseta o modo edição
+    editingTaskId = null; // Setzt den Bearbeitungsmodus zurück
   } else {
-    tasks.push(newTask); // Se não for edição, adiciona uma nova tarefa
+    tasks.push(newTask); // Neue Aufgabe hinzufügen
   }
 
-  // Salva e limpa os campos
+  // Speichert und leert die Felder
   saveTasks();
   taskTitle.value = '';
   taskDescription.value = '';
   taskDate.value = '';
 
-  renderTaskList(); // Atualiza a lista na tela
+  renderTaskList(); // Aktualisiert die Aufgabenliste auf der Seite
 }
 
-// Atualiza o status de uma tarefa (atrasada, concluída, etc.)
+// Aktualisiert den Status einer Aufgabe (überfällig, erledigt usw.)
 function updateTaskStatus(task) {
   const today = new Date();
   const dueDate = new Date(task.date);
 
+  // Setzt Uhrzeit auf 00:00:00, um Zeitprobleme zu vermeiden
+  today.setHours(0, 0, 0, 0);
+  dueDate.setHours(0, 0, 0, 0);
+
+  const diffTime = dueDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Unterschied in Tagen
+
   if (task.completed) {
     task.status = 'completed';
-  } else if (dueDate.toDateString() === today.toDateString()) {
-    task.status = 'due-soon';
-  } else if (dueDate < today) {
-    task.status = 'overdue';
+  } else if (diffDays >= 0 && diffDays <= 3) {
+    task.status = 'due-soon'; // Fällig heute oder in den nächsten 3 Tagen
+  } else if (diffDays < 0) {
+    task.status = 'overdue'; // Bereits überfällig
   } else {
-    task.status = 'on-time';
+    task.status = 'on-time'; // Mehr als 3 Tage übrig
   }
 }
 
-// Renderiza a lista de tarefas ou da lixeira
+// Rendert die Aufgabenliste oder den Papierkorb
 function renderTaskList() {
   const taskList = document.getElementById('task-list');
-  taskList.innerHTML = ''; // Limpa a lista antes de redesenhar
+  taskList.innerHTML = ''; // Leert die Liste vor dem Neuzeichnen
 
   const tasksToDisplay = currentView === 'tasks' ? tasks : trash;
 
-  // Nova função para mostrar mensagem caso a lixeira esteja vazia
+  // Zeigt eine Nachricht, wenn der Papierkorb leer ist
   if (currentView === 'trash' && trash.length === 0) {
     const emptyMessage = document.createElement('li');
-    emptyMessage.textContent = 'No deleted tasks.';
-    emptyMessage.style.color = '#6c757d'; // Cinza escuro
+    emptyMessage.textContent = 'Keine gelöschten Aufgaben.';
+    emptyMessage.style.color = '#6c757d'; // Dunkelgrau
     emptyMessage.style.listStyle = 'none';
     emptyMessage.style.textAlign = 'center';
     taskList.appendChild(emptyMessage);
-    return; // Para aqui, não precisa renderizar mais
+    return;
   }
 
-  // Ordena as tarefas de acordo com a data de vencimento, priorizando as com status 'due-soon'
+  // Sortiert Aufgaben nach Fälligkeitsdatum, priorisiert "due-soon"
   tasksToDisplay.sort((a, b) => {
     if (a.status === 'due-soon' && b.status !== 'due-soon') {
-      return -1; // Prioriza tarefas 'due-soon'
+      return -1;
     } else if (b.status === 'due-soon' && a.status !== 'due-soon') {
-      return 1; // Coloca tarefas 'due-soon' antes
+      return 1;
     }
 
-    // Se ambas tiverem o mesmo status, ordena pela data de vencimento
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
-    return dateA - dateB; // Ordena do mais próximo ao mais distante
+    return dateA - dateB;
   });
 
-  // Renderiza cada tarefa conforme o filtro
+  // Rendert jede Aufgabe entsprechend dem Filter
   tasksToDisplay.forEach(task => {
     updateTaskStatus(task);
     if (
@@ -117,35 +123,42 @@ function renderTaskList() {
   });
 }
 
-// Renderiza uma tarefa ativa
+// Rendert eine aktive Aufgabe
 function renderTask(task) {
   const taskList = document.getElementById('task-list');
   const li = document.createElement('li');
-  li.className = task.status; // Define a classe conforme o status
+  li.className = task.status;
 
-  // Cria elementos para título, descrição e data
   const titleSpan = document.createElement('span');
-  titleSpan.textContent = `Title: ${task.title}`;
+  titleSpan.textContent = `Titel: ${task.title}`;
 
   const descriptionSpan = document.createElement('span');
-  descriptionSpan.textContent = `Description: ${task.description}`;
+  descriptionSpan.textContent = `Beschreibung: ${task.description}`;
 
   const dateSpan = document.createElement('span');
-  dateSpan.textContent = `Due Date: ${formatDate(task.date)}`;
+  dateSpan.textContent = `Fällig am: ${formatDate(task.date)}`;
 
-  // Botão para deletar
   const deleteBtn = document.createElement('button');
-  deleteBtn.textContent = 'Delete';
+  deleteBtn.textContent = 'Löschen';
   deleteBtn.className = 'delete-btn';
   deleteBtn.addEventListener('click', () => deleteTask(task.id));
 
-  // Botão para editar
   const editBtn = document.createElement('button');
-  editBtn.textContent = 'Edit';
+  editBtn.textContent = 'Bearbeiten';
   editBtn.className = 'edit-btn';
   editBtn.addEventListener('click', () => editTask(task.id));
 
-  // Adiciona tudo dentro do item de lista
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = task.completed;
+  checkbox.addEventListener('change', () => {
+    task.completed = checkbox.checked;
+    updateTaskStatus(task);
+    saveTasks();
+    renderTaskList();
+  });
+  li.prepend(checkbox);
+
   li.appendChild(titleSpan);
   li.appendChild(descriptionSpan);
   li.appendChild(dateSpan);
@@ -154,30 +167,28 @@ function renderTask(task) {
   taskList.appendChild(li);
 }
 
-// Renderiza uma tarefa na lixeira
+// Rendert eine Aufgabe im Papierkorb
 function renderTrashTask(task) {
   const taskList = document.getElementById('task-list');
   const li = document.createElement('li');
-  li.style.borderLeft = '6px solid #343a40'; // Marca visual diferente para lixeira
+  li.style.borderLeft = '6px solid #343a40'; // Visuelle Markierung für Papierkorb
 
   const titleSpan = document.createElement('span');
-  titleSpan.textContent = `Title: ${task.title}`;
+  titleSpan.textContent = `Titel: ${task.title}`;
 
   const descriptionSpan = document.createElement('span');
-  descriptionSpan.textContent = `Description: ${task.description}`;
+  descriptionSpan.textContent = `Beschreibung: ${task.description}`;
 
   const dateSpan = document.createElement('span');
-  dateSpan.textContent = `Due Date: ${formatDate(task.date)}`;
+  dateSpan.textContent = `Fällig am: ${formatDate(task.date)}`;
 
-  // Botão para restaurar a tarefa
   const restoreBtn = document.createElement('button');
-  restoreBtn.textContent = 'Restore';
+  restoreBtn.textContent = 'Wiederherstellen';
   restoreBtn.className = 'restore-btn';
   restoreBtn.addEventListener('click', () => restoreTask(task.id));
 
-  // Botão para deletar permanentemente
   const deletePermanentBtn = document.createElement('button');
-  deletePermanentBtn.textContent = 'Delete Permanently';
+  deletePermanentBtn.textContent = 'Endgültig löschen';
   deletePermanentBtn.className = 'delete-btn';
   deletePermanentBtn.addEventListener('click', () => deletePermanent(task.id));
 
@@ -189,42 +200,45 @@ function renderTrashTask(task) {
   taskList.appendChild(li);
 }
 
-// Coloca a tarefa no formulário para editar
+// Lädt die Aufgabe in das Formular zum Bearbeiten
 function editTask(id) {
   const task = tasks.find(t => t.id === id);
   if (task) {
     document.getElementById('task-title').value = task.title;
     document.getElementById('task-description').value = task.description;
     document.getElementById('task-date').value = task.date;
-    editingTaskId = task.id; // Marca qual tarefa está sendo editada
+    editingTaskId = task.id;
   }
 }
 
-// Alterna entre a visualização de tarefas e lixeira
+// Wechselt zwischen Aufgabenansicht und Papierkorb
 function toggleView(view) {
   currentView = currentView === view ? 'tasks' : view;
   renderTaskList();
 }
 
-// Formata a data para o formato dd/mm/yyyy
+// NEUE FUNKTION – Gibt das Datum im deutschen Format TT MM JJJJ zurück
 function formatDate(dateString) {
-  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-  return new Date(dateString).toLocaleDateString('en-US', options);
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');     // TT
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // MM
+  const year = date.getFullYear();                          // JJJJ
+  return `${day} ${month} ${year}`;
 }
 
-// Move uma tarefa para a lixeira
+// Verschiebt eine Aufgabe in den Papierkorb
 function deleteTask(id) {
   const index = tasks.findIndex(t => t.id === id);
   if (index !== -1) {
-    trash.push(tasks[index]); // Move para a lixeira
-    tasks.splice(index, 1); // Remove da lista de tarefas
+    trash.push(tasks[index]);
+    tasks.splice(index, 1);
     saveTasks();
     saveTrash();
     renderTaskList();
   }
 }
 
-// Restaura uma tarefa da lixeira para a lista ativa
+// Stellt eine Aufgabe aus dem Papierkorb wieder her
 function restoreTask(id) {
   const index = trash.findIndex(t => t.id === id);
   if (index !== -1) {
@@ -236,7 +250,7 @@ function restoreTask(id) {
   }
 }
 
-// Exclui definitivamente uma tarefa da lixeira
+// Löscht eine Aufgabe dauerhaft aus dem Papierkorb
 function deletePermanent(id) {
   const index = trash.findIndex(t => t.id === id);
   if (index !== -1) {
@@ -246,11 +260,11 @@ function deletePermanent(id) {
   }
 }
 
-// Aplica o filtro selecionado
+// Wendet den ausgewählten Filter an
 function filterTasks() {
   filter = document.getElementById('filter').value;
   renderTaskList();
 }
 
-// Ao carregar a página, renderiza a lista inicial
+// Rendert die Liste beim Laden der Seite
 renderTaskList();
